@@ -3,7 +3,7 @@
 
 ///|
 /// Tokenizer types: Character N-grams, Word N-grams, and CJK tokenization.
-pub enum TokenizerType {
+pub(all) enum TokenizerType {
   CharNGram(Int)
   WordNGram(Int)
   CJKCharNGram(Int)
