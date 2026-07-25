@@ -1,0 +1,44 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Hjyyutr/moon-minhash/src/compress"
+
+import {
+  "Hjyyutr/moon-minhash/src/minhash",
+}
+
+// Values
+pub fn bbit_jaccard_similarity(BBitMinHashSignature, BBitMinHashSignature) -> Double
+
+pub fn quantize_minhash(@minhash.MinHashSignature, BBitMode) -> BBitMinHashSignature
+
+// Errors
+
+// Types and methods
+pub struct BBitMinHashSignature {
+  b_bits : Int
+  num_hashes : Int
+  packed_data : FixedArray[Byte]
+}
+pub fn BBitMinHashSignature::get_val(Self, Int) -> UInt
+
+pub(all) enum BBitMode {
+  OneBit
+  TwoBit
+  FourBit
+}
+
+pub struct HyperLogLog {
+  p : Int
+  m : Int
+  registers : FixedArray[Byte]
+  alpha_m : Double
+}
+pub fn HyperLogLog::add(Self, UInt) -> Unit
+pub fn HyperLogLog::add_string(Self, String) -> Unit
+pub fn HyperLogLog::cardinality(Self) -> Double
+pub fn HyperLogLog::merge(Self, Self) -> Unit
+pub fn HyperLogLog::new(Int) -> Self
+
+// Type aliases
+
+// Traits
+

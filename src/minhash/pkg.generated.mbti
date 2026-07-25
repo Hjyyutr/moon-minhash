@@ -1,0 +1,62 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Hjyyutr/moon-minhash/src/minhash"
+
+import {
+  "Hjyyutr/moon-minhash/src/hash",
+  "Hjyyutr/moon-minhash/src/tokenizer",
+}
+
+// Values
+pub fn compute_weighted_minhash(Array[WeightedElement], Int, UInt) -> WeightedMinHashSignature
+
+pub fn jaccard_similarity(MinHashSignature, MinHashSignature) -> Double
+
+pub fn merge_signatures(MinHashSignature, MinHashSignature) -> MinHashSignature
+
+pub fn weighted_jaccard_similarity(WeightedMinHashSignature, WeightedMinHashSignature) -> Double
+
+// Errors
+
+// Types and methods
+pub struct MinHashSignature {
+  num_hashes : Int
+  values : Array[UInt]
+}
+pub fn MinHashSignature::from_values(Array[UInt]) -> Self
+pub fn MinHashSignature::new(Int) -> Self
+pub fn MinHashSignature::update_hash_family(Self, UInt, Array[@hash.UniversalHash]) -> Unit
+
+pub struct MinHasher {
+  num_hashes : Int
+  seed : UInt64
+  hash_family : Array[@hash.UniversalHash]
+  shingle_builder : @tokenizer.ShingleBuilder
+}
+pub fn MinHasher::compute_text(Self, String) -> MinHashSignature
+pub fn MinHasher::compute_tokens(Self, Array[UInt]) -> MinHashSignature
+pub fn MinHasher::new(Int, UInt64) -> Self
+
+pub struct SuperMinHasher {
+  num_hashes : Int
+  seed : UInt
+}
+pub fn SuperMinHasher::compute(Self, Array[UInt]) -> MinHashSignature
+pub fn SuperMinHasher::new(Int, UInt) -> Self
+
+pub struct WeightedElement {
+  id : UInt
+  weight : Double
+}
+pub fn WeightedElement::new(UInt, Double) -> Self
+
+pub struct WeightedMinHashSignature {
+  num_hashes : Int
+  k_ids : Array[UInt]
+  k_vals : Array[Double]
+}
+pub fn WeightedMinHashSignature::new(Int) -> Self
+
+// Type aliases
+
+// Traits
+

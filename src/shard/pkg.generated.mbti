@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Hjyyutr/moon-minhash/src/shard"
+
+import {
+  "Hjyyutr/moon-minhash/src/lsh",
+  "Hjyyutr/moon-minhash/src/minhash",
+}
+
+// Values
+pub fn merge_shards(ShardPartition, ShardPartition, Int) -> ShardPartition
+
+// Errors
+
+// Types and methods
+pub struct ShardManager {
+  b : Int
+  r : Int
+  shards : Array[ShardPartition]
+}
+pub fn ShardManager::insert(Self, String, @minhash.MinHashSignature) -> Unit
+pub fn ShardManager::new(Int, Int, Int) -> Self
+pub fn ShardManager::query_candidates_all(Self, @minhash.MinHashSignature) -> Array[String]
+
+pub struct ShardPartition {
+  shard_id : Int
+  b : Int
+  r : Int
+  mut num_docs : Int
+  lsh_index : @lsh.LSHIndex
+  doc_map : Map[String, Bool]
+}
+pub fn ShardPartition::insert(Self, String, @minhash.MinHashSignature) -> Unit
+pub fn ShardPartition::new(Int, Int, Int) -> Self
+pub fn ShardPartition::query_candidates(Self, @minhash.MinHashSignature) -> Array[String]
+
+// Type aliases
+
+// Traits
+

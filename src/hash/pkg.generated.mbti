@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Hjyyutr/moon-minhash/src/hash"
+
+// Values
+pub fn generate_hash_family(Int, UInt64) -> Array[UniversalHash]
+
+pub fn murmurhash3_128(Bytes, UInt) -> (UInt, UInt, UInt, UInt)
+
+pub fn murmurhash3_32(Bytes, UInt) -> UInt
+
+pub fn murmurhash3_32_str(String, UInt) -> UInt
+
+pub fn siphash24(Bytes, UInt64, UInt64) -> UInt64
+
+pub fn xxhash32(Bytes, UInt) -> UInt
+
+pub fn xxhash32_str(String, UInt) -> UInt
+
+// Errors
+
+// Types and methods
+pub struct UniversalHash {
+  a : UInt64
+  b : UInt64
+}
+pub fn UniversalHash::hash(Self, UInt64) -> UInt64
+pub fn UniversalHash::hash_uint(Self, UInt) -> UInt
+pub fn UniversalHash::new(UInt64, UInt64) -> Self
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,54 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Hjyyutr/moon-minhash/src/tokenizer"
+
+// Values
+pub fn char_ngrams(String, Int) -> Array[String]
+
+pub fn chunk_text_rabin(String, RabinCDCConfig) -> Array[String]
+
+pub fn normalize_text(String, NormalizerConfig) -> String
+
+pub fn split_words(String) -> Array[String]
+
+pub fn tokenize(String, TokenizerType) -> Array[String]
+
+pub fn word_ngrams(String, Int) -> Array[String]
+
+// Errors
+
+// Types and methods
+pub struct NormalizerConfig {
+  lowercase : Bool
+  strip_punctuation : Bool
+  strip_digits : Bool
+  normalize_whitespace : Bool
+}
+pub fn NormalizerConfig::default() -> Self
+
+pub struct RabinCDCConfig {
+  min_chunk_size : Int
+  max_chunk_size : Int
+  target_chunk_size : Int
+  window_size : Int
+}
+pub fn RabinCDCConfig::default() -> Self
+
+pub struct ShingleBuilder {
+  shingle_size : Int
+  tokenizer_type : TokenizerType
+  seed : UInt
+}
+pub fn ShingleBuilder::build_hashed_shingles(Self, String) -> Array[UInt]
+pub fn ShingleBuilder::build_string_shingles(Self, String) -> Array[String]
+pub fn ShingleBuilder::new(Int, UInt) -> Self
+
+pub(all) enum TokenizerType {
+  CharNGram(Int)
+  WordNGram(Int)
+  CJKCharNGram(Int)
+}
+
+// Type aliases
+
+// Traits
+

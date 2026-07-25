@@ -1,0 +1,41 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Hjyyutr/moon-minhash/src/lsh"
+
+import {
+  "Hjyyutr/moon-minhash/src/minhash",
+}
+
+// Values
+pub fn auto_tune_lsh_params(Int, Double) -> LSHBandingConfig
+
+pub fn generate_multi_probe_keys(UInt, Int) -> Array[UInt]
+
+pub fn query_candidates_multiprobe(LSHIndex, @minhash.MinHashSignature, Int) -> Array[String]
+
+pub fn s_curve_probability(Double, Int, Int) -> Double
+
+// Errors
+
+// Types and methods
+pub struct LSHBandingConfig {
+  b : Int
+  r : Int
+}
+pub fn LSHBandingConfig::new(Int, Int) -> Self
+
+pub struct LSHIndex {
+  b : Int
+  r : Int
+  num_hashes : Int
+  buckets : Map[Int, Map[UInt, Array[String]]]
+  signatures : Map[String, @minhash.MinHashSignature]
+}
+pub fn LSHIndex::insert(Self, String, @minhash.MinHashSignature) -> Unit
+pub fn LSHIndex::new(Int, Int) -> Self
+pub fn LSHIndex::query_candidates(Self, @minhash.MinHashSignature) -> Array[String]
+pub fn LSHIndex::query_similar(Self, @minhash.MinHashSignature, Double) -> Array[(String, Double)]
+
+// Type aliases
+
+// Traits
+

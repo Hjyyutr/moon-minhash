@@ -1,0 +1,62 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Hjyyutr/moon-minhash/src/dedup"
+
+import {
+  "Hjyyutr/moon-minhash/src/lsh",
+  "Hjyyutr/moon-minhash/src/minhash",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct DedupReport {
+  total_documents : Int
+  unique_documents : Int
+  duplicate_documents : Int
+  dedup_ratio : Double
+  clusters : Map[String, Array[String]]
+}
+
+pub struct DedupResult {
+  is_duplicate : Bool
+  matched_doc_id : String
+  similarity : Double
+}
+
+pub struct DeduplicationEngine {
+  threshold : Double
+  num_hashes : Int
+  seed : UInt64
+}
+pub fn DeduplicationEngine::deduplicate_batch(Self, Array[DocumentItem]) -> DedupReport
+pub fn DeduplicationEngine::new(Double, Int, UInt64) -> Self
+
+pub struct DisjointSetCluster {
+  parent : Map[String, String]
+  rank : Map[String, Int]
+}
+pub fn DisjointSetCluster::find(Self, String) -> String
+pub fn DisjointSetCluster::get_clusters(Self) -> Map[String, Array[String]]
+pub fn DisjointSetCluster::new() -> Self
+pub fn DisjointSetCluster::union(Self, String, String) -> Unit
+
+pub struct DocumentItem {
+  id : String
+  content : String
+}
+pub fn DocumentItem::new(String, String) -> Self
+
+pub struct StreamingDeduplicator {
+  threshold : Double
+  minhasher : @minhash.MinHasher
+  lsh_index : @lsh.LSHIndex
+}
+pub fn StreamingDeduplicator::new(Double, Int, UInt64) -> Self
+pub fn StreamingDeduplicator::process(Self, String, String) -> DedupResult
+
+// Type aliases
+
+// Traits
+
