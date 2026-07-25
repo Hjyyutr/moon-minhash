@@ -1,0 +1,8 @@
+pkgtype(kind: "executable")
+
+import {
+  "Hjyyutr/moon-minhash/src/minhash",
+  "Hjyyutr/moon-minhash/src/lsh",
+  "Hjyyutr/moon-minhash/src/compress",
+  "Hjyyutr/moon-minhash/src/dedup",
+}
