@@ -1,0 +1,4 @@
+import {
+  "Hjyyutr/moon-minhash/src/minhash",
+  "Hjyyutr/moon-minhash/src/lsh",
+}
