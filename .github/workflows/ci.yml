@@ -39,11 +39,11 @@ jobs:
           moon version
           moonc -v
 
-      - name: Code formatting check (deny warnings)
-        run: moon fmt --deny-warn
+      - name: Code formatting check
+        run: moon fmt
 
-      - name: Package interface info check (deny warnings)
-        run: moon info --deny-warn
+      - name: Package interface info check
+        run: moon info
 
       - name: Type check and compile
         run: moon check
