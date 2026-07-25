@@ -1,0 +1,52 @@
+name: CI Check & Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check:
+    name: Check (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MoonBit (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Setup MoonBit (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          powershell -Command "Set-ExecutionPolicy RemoteSigned -Scope Process; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://cli.moonbitlang.com/install/powershell.ps1'))"
+          echo "$USERPROFILE/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Verify MoonBit installation
+        run: |
+          moon version
+          moonc -v
+
+      - name: Code formatting check (deny warnings)
+        run: moon fmt --deny-warn
+
+      - name: Package interface info check (deny warnings)
+        run: moon info --deny-warn
+
+      - name: Type check and compile
+        run: moon check
+
+      - name: Run unit tests & benchmarks
+        run: moon test
