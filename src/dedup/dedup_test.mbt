@@ -13,6 +13,15 @@ test "union find cluster" {
 }
 
 ///|
+test "parallel union find cluster" {
+  let edges = [("d1", "d2"), ("d2", "d3"), ("d4", "d5")]
+  let cluster = parallel_cluster(edges, 2)
+
+  assert_eq(cluster.find("d1"), cluster.find("d3"))
+  assert_true(cluster.find("d1") != cluster.find("d4"))
+}
+
+///|
 test "streaming deduplicator" {
   let deduper = StreamingDeduplicator::new(0.4, 128, 42UL)
 

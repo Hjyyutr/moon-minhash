@@ -80,7 +80,7 @@ pub fn xxhash32(bytes : Bytes, seed : UInt) -> UInt {
 
 ///|
 pub fn xxhash32_str(str : String, seed : UInt) -> UInt {
-  xxhash32(str.to_bytes(), seed)
+  xxhash32(@utf8.encode(str), seed)
 }
 
 ///|

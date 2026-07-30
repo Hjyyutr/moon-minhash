@@ -59,7 +59,7 @@ pub fn murmurhash3_32(bytes : Bytes, seed : UInt) -> UInt {
 ///|
 /// MurmurHash3 32-bit helper for strings.
 pub fn murmurhash3_32_str(str : String, seed : UInt) -> UInt {
-  murmurhash3_32(str.to_bytes(), seed)
+  murmurhash3_32(@utf8.encode(str), seed)
 }
 
 ///|

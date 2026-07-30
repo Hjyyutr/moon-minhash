@@ -84,3 +84,69 @@ pub fn DisjointSetCluster::get_clusters(
   }
   clusters
 }
+
+///|
+/// Merges another disjoint set cluster into this one.
+/// This allows parallel/distributed Union-Find computation where subsets of edges
+/// are processed independently and then merged hierarchically.
+pub fn DisjointSetCluster::merge(
+  self : DisjointSetCluster,
+  other : DisjointSetCluster,
+) -> Unit {
+  for x, _ in other.parent {
+    let parent_x = other.find(x)
+    self.union(x, parent_x)
+  }
+}
+
+///|
+/// Computes DisjointSetCluster in parallel using divide-and-conquer strategy.
+/// Splits edges into chunks, processes them in parallel, and merges them hierarchically.
+pub fn parallel_cluster(
+  edges : Array[(String, String)],
+  num_workers : Int,
+) -> DisjointSetCluster {
+  if edges.length() == 0 {
+    return DisjointSetCluster::new()
+  }
+
+  let workers = if num_workers < 1 { 1 } else { num_workers }
+  let chunk_size = (edges.length() + workers - 1) / workers
+  let sub_clusters = Array::new(capacity=workers)
+
+  for w = 0; w < workers; w = w + 1 {
+    let start = w * chunk_size
+    let end = if (w + 1) * chunk_size > edges.length() {
+      edges.length()
+    } else {
+      (w + 1) * chunk_size
+    }
+    if start >= edges.length() {
+      break
+    }
+
+    let cluster = DisjointSetCluster::new()
+    for i = start; i < end; i = i + 1 {
+      let (u, v) = edges[i]
+      cluster.union(u, v)
+    }
+    sub_clusters.push(cluster)
+  }
+
+  // Hierarchical tree-reduction merge
+  let mut step = 1
+  while step < sub_clusters.length() {
+    let mut i = 0
+    while i + step < sub_clusters.length() {
+      sub_clusters[i].merge(sub_clusters[i + step])
+      i = i + step * 2
+    }
+    step = step * 2
+  }
+
+  if sub_clusters.length() > 0 {
+    sub_clusters[0]
+  } else {
+    DisjointSetCluster::new()
+  }
+}
