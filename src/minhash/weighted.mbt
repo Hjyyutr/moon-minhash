@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0
 
 ///|
-fn ln(x : Double) -> Double {
+pub fn ln(x : Double) -> Double {
   if x <= 0.0 {
     return 0.0
   }

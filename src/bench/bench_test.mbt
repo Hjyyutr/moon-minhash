@@ -64,3 +64,83 @@ test "benchmark streaming deduplication speed" {
 
   assert_true(dup_count > 50)
 }
+
+///|
+test "benchmark similarity distance metrics throughput" {
+  let s1 = "MoonBit is an extremely fast systems programming language designed for WebAssembly"
+  let s2 = "MoonBit is an extremely fast systems language targeting WebAssembly runtimes"
+
+  let mut sum = 0.0
+  for i = 0; i < 100; i = i + 1 {
+    sum = sum + @similarity.levenshtein_similarity(s1, s2)
+    sum = sum + @similarity.jaro_winkler_similarity(s1, s2)
+    sum = sum + @similarity.sorensen_dice_coefficient(s1, s2)
+    sum = sum + @similarity.cosine_similarity(s1, s2)
+    sum = sum + @similarity.overlap_coefficient(s1, s2)
+    sum = sum + @similarity.tversky_index(s1, s2, 0.5, 0.5)
+    sum = sum + @similarity.string_jaccard_similarity(s1, s2)
+  }
+  assert_true(sum > 0.0)
+}
+
+///|
+test "benchmark simhash fingerprinting and lsh query" {
+  let hasher = @lsh.SimHasher::new(64, 42U)
+  let index = @lsh.SimHashLSH::new(64, 10, 8)
+  let fp_map = Map::from_array([])
+
+  for i = 0; i < 100; i = i + 1 {
+    let tokens = [
+      "moonbit",
+      "language",
+      "fast",
+      "document",
+      "dedup",
+      "hash",
+      "token_" + i.to_string(),
+    ]
+    let fp = hasher.compute_fingerprint(tokens)
+    let doc_id = "doc_" + i.to_string()
+    index.insert(doc_id, fp)
+    fp_map.set(doc_id, fp)
+  }
+
+  let query_tokens = [
+    "moonbit", "language", "fast", "document", "dedup", "hash", "token_50",
+  ]
+  let query_fp = hasher.compute_fingerprint(query_tokens)
+  let cands = index.query(query_fp, fp_map)
+  assert_true(cands.length() >= 1)
+}
+
+///|
+test "benchmark fnv hash throughput" {
+  let mut sum32 = 0U
+  let mut sum64 = 0UL
+  for i = 0; i < 1000; i = i + 1 {
+    let s = "benchmark_payload_" + i.to_string()
+    sum32 = sum32 ^ @hash.fnv1a_32_str(s)
+    sum64 = sum64 ^ @hash.fnv1a_64_str(s)
+  }
+  assert_true(sum32 > 0U)
+  assert_true(sum64 > 0UL)
+}
+
+///|
+test "benchmark porter stemmer throughput" {
+  let stemmer = @tokenizer.PorterStemmer::new()
+  let words = [
+    "connections", "connecting", "connected", "connection", "programming", "programmer",
+    "programmed", "programs", "development", "developer", "developing", "developed",
+    "performance", "performing", "performed", "performer", "documentation", "documenting",
+    "documented", "documents",
+  ]
+  let mut total_len = 0
+  for round = 0; round < 50; round = round + 1 {
+    for i = 0; i < words.length(); i = i + 1 {
+      let stemmed = stemmer.stem(words[i])
+      total_len = total_len + stemmed.length()
+    }
+  }
+  assert_true(total_len > 0)
+}

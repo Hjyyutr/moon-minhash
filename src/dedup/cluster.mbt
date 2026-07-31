@@ -14,6 +14,38 @@ pub fn DisjointSetCluster::new() -> DisjointSetCluster {
 }
 
 ///|
+/// Checks if an element exists in the disjoint set cluster.
+pub fn DisjointSetCluster::has_element(
+  self : DisjointSetCluster,
+  x : String,
+) -> Bool {
+  self.parent.contains(x)
+}
+
+///|
+/// Returns the total number of tracked elements in the disjoint set cluster.
+pub fn DisjointSetCluster::length(self : DisjointSetCluster) -> Int {
+  self.parent.length()
+}
+
+///|
+/// Clears all cluster assignments.
+pub fn DisjointSetCluster::clear(self : DisjointSetCluster) -> Unit {
+  self.parent.clear()
+  self.rank.clear()
+}
+
+///|
+/// Returns an array of all tracked document IDs in the cluster.
+pub fn DisjointSetCluster::to_array(self : DisjointSetCluster) -> Array[String] {
+  let arr = Array::new()
+  for x, _ in self.parent {
+    arr.push(x)
+  }
+  arr
+}
+
+///|
 /// Finds root representative for element x with path compression.
 pub fn DisjointSetCluster::find(
   self : DisjointSetCluster,
@@ -100,21 +132,27 @@ pub fn DisjointSetCluster::merge(
 }
 
 ///|
-/// Computes DisjointSetCluster in parallel using divide-and-conquer strategy.
-/// Splits edges into chunks, processes them in parallel, and merges them hierarchically.
-pub fn parallel_cluster(
+/// Computes DisjointSetCluster using a divide-and-conquer strategy.
+/// Splits edges into chunks, processes each chunk sequentially to construct
+/// local disjoint set graphs, and merges them hierarchically.
+///
+/// NOTE: This function is a sequential simulation of the hierarchical merge model.
+/// In a true distributed or multi-threaded runtime (e.g. MapReduce or C multi-threading),
+/// the chunked edge sets are processed in parallel on different threads/cores/nodes, and
+/// the final tree-reduction merge executes in O(log P) steps to aggregate sub-clusters.
+pub fn hierarchical_merge_cluster(
   edges : Array[(String, String)],
-  num_workers : Int,
+  num_chunks : Int,
 ) -> DisjointSetCluster {
   if edges.length() == 0 {
     return DisjointSetCluster::new()
   }
 
-  let workers = if num_workers < 1 { 1 } else { num_workers }
-  let chunk_size = (edges.length() + workers - 1) / workers
-  let sub_clusters = Array::new(capacity=workers)
+  let chunks = if num_chunks < 1 { 1 } else { num_chunks }
+  let chunk_size = (edges.length() + chunks - 1) / chunks
+  let sub_clusters = Array::new(capacity=chunks)
 
-  for w = 0; w < workers; w = w + 1 {
+  for w = 0; w < chunks; w = w + 1 {
     let start = w * chunk_size
     let end = if (w + 1) * chunk_size > edges.length() {
       edges.length()

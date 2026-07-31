@@ -46,3 +46,29 @@ test "multi-probe candidate search" {
   let cands = query_candidates_multiprobe(index, sig, 2)
   assert_true(cands.length() >= 1)
 }
+
+///|
+test "simhash lsh indexing and query" {
+  let sim = SimHasher::new(64, 42U)
+  let f1 = sim.compute_fingerprint([
+    "moonbit", "language", "is", "very", "fast", "and", "safe",
+  ])
+  let f2 = sim.compute_fingerprint([
+    "moonbit", "language", "is", "very", "speed", "and", "safe",
+  ])
+  let f3 = sim.compute_fingerprint([
+    "python", "interpreted", "scripting", "language", "is", "slow",
+  ])
+
+  let index = SimHashLSH::new(64, 15, 8)
+  let fp_map = Map::from_array([("d1", f1), ("d2", f2), ("d3", f3)])
+
+  index.insert("d1", f1)
+  index.insert("d2", f2)
+  index.insert("d3", f3)
+
+  let cands = index.query(f1, fp_map)
+  assert_true(cands.contains("d1"))
+  assert_true(cands.contains("d2"))
+  assert_false(cands.contains("d3"))
+}

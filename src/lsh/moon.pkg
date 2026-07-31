@@ -1,4 +1,5 @@
 import {
   "Hjyyutr/moon-minhash/src/hash",
   "Hjyyutr/moon-minhash/src/minhash",
+  "moonbitlang/core/encoding/utf8",
 }

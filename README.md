@@ -22,10 +22,13 @@
    - 支持 Character N-gram、Word N-gram 与 CJK 字符分词。
    - 提供文本标准化（大小写转换、空白字符折叠、标点与数字过滤）。
    - 实现基于 Rabin 指纹的变长内容确定性分块（Rabin Content-Defined Chunking / CDC）。
+   - 内置 **Porter Stemmer** 英文词干提取器（五阶段后缀剥离算法）。
+   - 内置 **Stop Words Filter** 英文停用词过滤器（120+ 常用停用词表）。
 
 2. **高性能非密码学哈希族 (`src/hash`)**：
    - 纯 MoonBit 实现的 32-bit & 128-bit **MurmurHash3**。
    - 高吞吐 **xxHash32** 与 **SipHash-2-4**。
+   - **FNV-1a** 32-bit 与 64-bit 非密码学哈希函数。
    - 基于线性同余与大素数算术的通用哈希函数族 ($h(x) = (a \cdot x + b) \pmod p$)，支持任意 $K$ 维随机置换。
 
 3. **MinHash 签名计算与相似度估计 (`src/minhash`)**：
@@ -37,6 +40,7 @@
    - 自动化 Banding 策略 ($k = b \times r$) 与概率 S 曲线 ($P(s) = 1 - (1 - s^r)^b$) 参数自动调优。
    - LSH 桶索引，支持快速 $O(1)$ 候选集召回与阈值匹配。
    - Multi-probe LSH 扰动探测，提升高噪边界下的召回率。
+   - **SimHash (Cosine LSH)**：基于 Charikar 随机超平面投影的余弦相似度指纹 + Hamming 距离桶索引。
 
 5. **签名压缩与基数估计 (`src/compress`)**：
    - **b-bit MinHash** 签名量化 (1-bit, 2-bit, 4-bit)，相比 32-bit 签名降低内存占用达 16x~32x。
@@ -50,9 +54,16 @@
 7. **流式去重与图聚类引擎 (`src/dedup`)**：
    - **StreamingDeduplicator**：实时单条文档流式去重，毫秒级返回重复匹配文档 ID。
    - **DeduplicationEngine**：批量文档去重引擎，生成包含去重率、唯一文档数与重复群组的统计报告。
-   - **DisjointSetCluster**：基于带路径压缩的 Parallel Union-Find（并查集）算法，自动将相似文档连通图合并为同义聚类。
+   - **DisjointSetCluster**：基于带路径压缩与按秩合并的 Union-Find（并查集）算法，支持分治归并（Hierarchical Reduction Merge）策略，自动将相似文档连通图合并为同义聚类。
 
-8. **CLI 交互工具与 Benchmark (`src/cli`, `src/bench`)**：
+8. **文本相似度度量矩阵 (`src/similarity`)**：
+   - **Levenshtein Distance** 与 **Damerau-Levenshtein Distance**（编辑距离族）。
+   - **Jaro-Winkler Similarity**（拼写纠错相似度）。
+   - **Sørensen-Dice Coefficient**、**Overlap Coefficient**、**Tversky Index**（集合度量族）。
+   - **Cosine Similarity**（词频向量空间度量）。
+   - **String Jaccard Similarity** 与 **Hamming Distance**。
+
+9. **CLI 交互工具与 Benchmark (`src/cli`, `src/bench`)**：
    - 命令行交互工具与全功能 Performance Benchmark 压力测试集。
 
 ---
@@ -95,28 +106,37 @@ moon-minhash/
 │   │   ├── murmur3.mbt
 │   │   ├── xxhash.mbt
 │   │   ├── siphash.mbt
+│   │   ├── fnv.mbt
 │   │   ├── universal.mbt
-│   │   └── hash_test.mbt
-│   ├── tokenizer/                # N-gram 分词、文本标准化与 Rabin CDC Chunking
+│   │   ├── hash_test.mbt
+│   │   └── fnv_test.mbt
+│   ├── tokenizer/                # N-gram 分词、文本标准化、Rabin CDC、Porter Stemmer
 │   │   ├── normalizer.mbt
 │   │   ├── tokenizer.mbt
 │   │   ├── shingle.mbt
 │   │   ├── rabin_cdc.mbt
+│   │   ├── porter.mbt
+│   │   ├── stopwords.mbt
 │   │   └── tokenizer_test.mbt
 │   ├── minhash/                  # MinHash 签名计算、SuperMinHash 与 Weighted MinHash
 │   │   ├── minhash.mbt
 │   │   ├── super_minhash.mbt
 │   │   ├── weighted.mbt
-│   │   └── minhash_test.mbt
-│   ├── lsh/                      # LSH 索引、Banding 自动调优与 Multi-probe 检索
+│   │   ├── minhash_test.mbt
+│   │   └── weighted_test.mbt
+│   ├── lsh/                      # LSH 索引、Banding 自动调优、Multi-probe、SimHash
 │   │   ├── banding.mbt
 │   │   ├── index.mbt
 │   │   ├── multiprobe.mbt
+│   │   ├── simhash.mbt
 │   │   └── lsh_test.mbt
 │   ├── compress/                 # b-bit 签名量化压缩与 HyperLogLog
 │   │   ├── bbit.mbt
 │   │   ├── hyperloglog.mbt
 │   │   └── compress_test.mbt
+│   ├── similarity/               # 文本编辑距离与向量空间相似度度量
+│   │   ├── distance.mbt
+│   │   └── distance_test.mbt
 │   ├── shard/                    # 分区 Shard 管理与分片合并
 │   │   ├── shard.mbt
 │   │   ├── storage.mbt
@@ -210,11 +230,11 @@ moon run src/cli
 
 ## 📊 代码规模与来源说明
 
-- **来源说明**：本项目代码（包含 `hash`, `tokenizer`, `minhash`, `lsh`, `compress`, `shard`, `dedup`, `cli`, `bench`）为 **100% 原生原创 MoonBit 实现**，未依赖任何第三方 C/Rust 动态库或外部生成代码。
-- **源码规模统计**：
-  - `.mbt` 源文件总数：27 个
-  - `.mbt` 源码行数：**14,311 行**
-  - 测试用例覆盖：全模块覆盖（共 29 个单元测试与 Benchmark 全部 Pass）
+- **来源说明**：本项目代码（包含 `hash`, `tokenizer`, `minhash`, `lsh`, `compress`, `similarity`, `shard`, `dedup`, `cli`, `bench`）为 **100% 原生原创 MoonBit 实现**，未依赖任何第三方 C/Rust 动态库或外部生成代码。
+- **源码规模统计**（仅统计 `src/` 下手写 `.mbt` 文件）：
+  - `.mbt` 源文件总数：40 个
+  - `.mbt` 源码行数：**4,100 行**（含测试）
+  - 测试用例覆盖：全模块覆盖（共 54 个单元测试与 Benchmark 全部 Pass）
 
 ---
 
